@@ -16,7 +16,8 @@ RES_DEF = {'D': 48708,
            'Y': 144,
            }
 
-SEATS_DEF = 63
+SEATS_DEF   = 63
+METHOD_DEF  = "dhont"
 
 
 def main(args):
@@ -33,6 +34,14 @@ def main(args):
     else:
         num_seats = SEATS_DEF
 
+    if args.method:
+        if args.method == "d" or args.method == "dhont":
+            method = "dhont"
+        else:
+            method = "saintlague"
+    else:
+        method = METHOD_DEF
+
     if args.limit:
         tot_votes = sum(res.values())
         limit = tot_votes * args.limit / 100
@@ -45,14 +54,19 @@ def main(args):
 
     seats = dict((x,0) for x in res.keys())
 
+    order = list()
 
     for i in range(num_seats):
         
         s = max(res, key=res.get)
-
         seats[s] += 1
 
-        res[s] = const[s] / (seats[s]+1)
+        if method == "dhont":
+            res[s] = const[s] / (seats[s]+1)
+        else:
+            res[s] = const[s] / (2*seats[s]+1)
+
+        order.append("{0}. Þingmaður: {1}".format(i+1,s))
 
 
     pp = pprint.PrettyPrinter(width=1)
@@ -66,14 +80,24 @@ def main(args):
     print("=============================")
     print("Næsti maður inn færi til: {}".format(max(res, key=res.get)))
 
+    if args.order:
+        print(*order, sep="\n")
+
 
 
 if __name__ == "__main__":
+
+    def valid_method(method):
+        if not method in ["d", "dhont", "sl", "saintlague"]:
+            raise argparse.ArgumentTypeError("Method must be either dhont or saintlague")
+        return method
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", required=False)
     parser.add_argument("-s", "--seats", required=False, type=int)
     parser.add_argument("-l", "--limit", required=False, type=int)
+    parser.add_argument("-o", "--order", required=False, action='store_true')
+    parser.add_argument("-m", "--method", required=False, type=valid_method)
 
     args = parser.parse_args()
 

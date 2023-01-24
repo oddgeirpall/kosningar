@@ -42,12 +42,12 @@ def main(args):
     else:
         method = METHOD_DEF
 
-    if args.limit:
+    if args.threshold:
         tot_votes = sum(res.values())
-        limit = tot_votes * args.limit / 100
+        threshold = tot_votes * args.threshold / 100
 
         for key in res:
-            if res[key] < limit:
+            if res[key] < threshold:
                 res[key] = 0
 
     const = res.copy()
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", required=False)
     parser.add_argument("-s", "--seats", required=False, type=int)
-    parser.add_argument("-l", "--limit", required=False, type=int)
+    parser.add_argument("-t", "--threshold", required=False, type=int)
     parser.add_argument("-o", "--order", required=False, action='store_true')
     parser.add_argument("-m", "--method", required=False, type=valid_method)
 
